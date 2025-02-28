@@ -60,7 +60,9 @@ export const userLogin = async ({ body }, res) => {
       });
     }
 
-    if (!(await usuario.matchPassword(password))) {
+    const matchPassword = await usuario.matchPassword(password);
+
+    if (!matchPassword) {
       return res
         .status(401)
         .json({ response: 'La contraseña es incorrecta ⛔' });
