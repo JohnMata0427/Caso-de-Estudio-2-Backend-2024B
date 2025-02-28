@@ -23,29 +23,28 @@ export const createVehiculo = async ({ body }, res) => {
       !tipo_vehiculo ||
       !kilometraje ||
       !descripcion
-    ) {
+    )
       return res
         .status(400)
         .json({ response: 'Por favor, rellene todos los campos ⚠️' });
-    }
 
     const placaExistente = await Vehiculo.exists({ placa });
 
-    if (placaExistente) {
+    if (placaExistente)
       return res.status(400).json({
         response: 'La placa ya se encuentra registrada ⚠️',
       });
-    }
 
     const anioActual = new Date().getFullYear();
 
-    if (anio_fabricacion > anioActual) {
+    if (anio_fabricacion > anioActual) 
       return res.status(400).json({
         response: 'El año de fabricación no puede ser mayor al año actual ⚠️',
       });
-    }
 
     const vehiculo = await Vehiculo.create(body);
+
+    delete vehiculo.__v
 
     return res
       .status(201)
@@ -57,7 +56,7 @@ export const createVehiculo = async ({ body }, res) => {
 
 export const getAllVehiculos = async (_, res) => {
   try {
-    const vehiculos = await Vehiculo.find();
+    const vehiculos = await Vehiculo.find().select('-__v');
 
     return res.status(200).json(vehiculos);
   } catch (error) {
@@ -67,13 +66,12 @@ export const getAllVehiculos = async (_, res) => {
 
 export const getVehiculoById = async ({ params: { id } }, res) => {
   try {
-    const vehiculo = await Vehiculo.findById(id);
+    const vehiculo = await Vehiculo.findById(id).select('-__v');
 
-    if (!vehiculo) {
+    if (!vehiculo)
       return res.status(404).json({ response: 'Vehículo no encontrado ⚠️' });
-    }
 
-    const reservas = await Reserva.find({ id_vehiculo: id });
+    const reservas = await Reserva.find({ id_vehiculo: id }).select('-__v');
 
     return res.status(200).json({ vehiculo, reservas });
   } catch (error) {
@@ -85,11 +83,10 @@ export const updateVehiculoById = async ({ params: { id }, body }, res) => {
   try {
     const vehiculoExistente = await Vehiculo.findById(id);
 
-    if (!vehiculoExistente) {
+    if (!vehiculoExistente)
       return res.status(404).json({ response: 'Vehículo no encontrado ⚠️' });
-    }
 
-    const { placa } = body;
+    const { placa, anio_fabricacion } = body;
 
     if (placa && placa !== vehiculoExistente.placa) {
       const placaExistente = await Vehiculo.exists({ placa });
@@ -113,8 +110,10 @@ export const updateVehiculoById = async ({ params: { id }, body }, res) => {
       });
     }
 
-    const vehiculo = await Vehiculo.findByIdAndUpdate(id, body, { new: true });
-
+    const vehiculo = await Vehiculo.findByIdAndUpdate(id, body, {
+      new: true,
+    }).select('-__v');
+    
     return res
       .status(200)
       .json({ response: 'Vehículo actualizado con éxito ✅', vehiculo });
@@ -127,9 +126,8 @@ export const deleteVehiculoById = async ({ params: { id } }, res) => {
   try {
     const vehiculo = await Vehiculo.findById(id);
 
-    if (!vehiculo) {
+    if (!vehiculo)
       return res.status(404).json({ response: 'Vehículo no encontrado ⚠️' });
-    }
 
     await vehiculo.remove();
 

@@ -47,6 +47,8 @@ export const createClient = async ({ body }, res) => {
 
     const cliente = await Cliente.create(body);
 
+    delete cliente.__v;
+
     return res
       .status(201)
       .json({ response: 'Cliente creado con éxito ✅', cliente });
@@ -57,7 +59,7 @@ export const createClient = async ({ body }, res) => {
 
 export const getAllClients = async (_, res) => {
   try {
-    const clientes = await Cliente.find();
+    const clientes = await Cliente.find().select('-__v');
 
     return res.status(200).json(clientes);
   } catch (error) {
@@ -67,13 +69,13 @@ export const getAllClients = async (_, res) => {
 
 export const getClientById = async ({ params: { id } }, res) => {
   try {
-    const cliente = await Cliente.findById(id);
+    const cliente = await Cliente.findById(id).select('-__v');
 
     if (!cliente) {
       return res.status(404).json({ response: 'Cliente no encontrado ⚠️' });
     }
 
-    const reservas = await Reserva.find({ id_cliente: id });
+    const reservas = await Reserva.find({ id_cliente: id }).select('-__v');
 
     return res.status(200).json({ cliente, reservas });
   } catch (error) {
@@ -109,7 +111,7 @@ export const updateClientById = async ({ params: { id }, body }, res) => {
       }
     }
 
-    const cliente = await Cliente.findByIdAndUpdate(id, body, { new: true });
+    const cliente = await Cliente.findByIdAndUpdate(id, body, { new: true }).select('-__v');
 
     return res
       .status(200)

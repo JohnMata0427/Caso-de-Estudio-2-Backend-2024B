@@ -38,6 +38,8 @@ export const createReserva = async ({ body }, res) => {
 
     const reserva = await Reserva.create(body);
 
+    delete reserva.__v;
+
     return res
       .status(201)
       .json({ response: 'Reserva creada con éxito ✅', reserva });
@@ -48,7 +50,7 @@ export const createReserva = async ({ body }, res) => {
 
 export const getAllReservas = async (_, res) => {
   try {
-    const reservas = await Reserva.find();
+    const reservas = await Reserva.find().select('-__v');
 
     return res.status(200).json(reservas);
   } catch (error) {
@@ -58,7 +60,7 @@ export const getAllReservas = async (_, res) => {
 
 export const getReservaById = async ({ params: { id } }, res) => {
   try {
-    const reserva = await Reserva.findById(id);
+    const reserva = await Reserva.findById(id).select('-__v');
 
     if (!reserva) {
       return res.status(404).json({ response: 'Reserva no encontrada ⚠️' });
@@ -66,8 +68,8 @@ export const getReservaById = async ({ params: { id } }, res) => {
 
     const { id_cliente, id_vehiculo } = reserva;
 
-    const cliente = await Cliente.findById(id_cliente);
-    const vehiculo = await Vehiculo.findById(id_vehiculo);
+    const cliente = await Cliente.findById(id_cliente).select('-__v');
+    const vehiculo = await Vehiculo.findById(id_vehiculo).select('-__v');
 
     return res.status(200).json({ reserva, cliente, vehiculo });
   } catch (error) {
@@ -115,7 +117,7 @@ export const updateReservaById = async ({ params: { id }, body }, res) => {
       }
     }
 
-    const reserva = await Reserva.findByIdAndUpdate(id, body, { new: true });
+    const reserva = await Reserva.findByIdAndUpdate(id, body, { new: true }).select('-__v');
 
     return res
       .status(200)
