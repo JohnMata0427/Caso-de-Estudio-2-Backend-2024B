@@ -33,7 +33,7 @@ const VehiculoSchema = new Schema({
     trim: true,
   },
   kilometraje: {
-    type: Number,
+    type: String,
     required: true,
   },
   descripcion: {

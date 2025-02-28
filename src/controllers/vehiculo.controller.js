@@ -37,12 +37,22 @@ export const createVehiculo = async ({ body }, res) => {
       });
     }
 
+    const anioActual = new Date().getFullYear();
+
+    if (anio_fabricacion > anioActual) {
+      return res.status(400).json({
+        response: 'El año de fabricación no puede ser mayor al año actual ⚠️',
+      });
+    }
+
     const vehiculo = await Vehiculo.create(body);
 
     return res
       .status(201)
       .json({ response: 'Vehículo creado con éxito ✅', vehiculo });
-  } catch (error) {}
+  } catch (error) {
+    return res.status(500).json({ response: 'Error en el servidor ⛔', error });
+  }
 };
 
 export const getAllVehiculos = async (_, res) => {
@@ -89,6 +99,18 @@ export const updateVehiculoById = async ({ params: { id }, body }, res) => {
           response: 'La placa ya se encuentra registrada ⚠️',
         });
       }
+    }
+
+    const anioActual = new Date().getFullYear();
+
+    if (
+      anio_fabricacion &&
+      anio_fabricacion !== vehiculoExistente.anio_fabricacion &&
+      anio_fabricacion > anioActual
+    ) {
+      return res.status(400).json({
+        response: 'El año de fabricación no puede ser mayor al año actual ⚠️',
+      });
     }
 
     const vehiculo = await Vehiculo.findByIdAndUpdate(id, body, { new: true });
