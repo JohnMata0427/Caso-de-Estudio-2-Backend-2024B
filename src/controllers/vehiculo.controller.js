@@ -3,30 +3,7 @@ import { Vehiculo } from '../models/vehiculo.model.js';
 
 export const createVehiculo = async ({ body }, res) => {
   try {
-    const {
-      marca,
-      modelo,
-      anio_fabricacion,
-      placa,
-      color,
-      tipo_vehiculo,
-      kilometraje,
-      descripcion,
-    } = body;
-
-    if (
-      !marca ||
-      !modelo ||
-      !anio_fabricacion ||
-      !placa ||
-      !color ||
-      !tipo_vehiculo ||
-      !kilometraje ||
-      !descripcion
-    )
-      return res
-        .status(400)
-        .json({ response: 'Por favor, rellene todos los campos ⚠️' });
+    const { placa } = body;
 
     const placaExistente = await Vehiculo.exists({ placa });
 
@@ -35,16 +12,9 @@ export const createVehiculo = async ({ body }, res) => {
         response: 'La placa ya se encuentra registrada ⚠️',
       });
 
-    const anioActual = new Date().getFullYear();
-
-    if (anio_fabricacion > anioActual) 
-      return res.status(400).json({
-        response: 'El año de fabricación no puede ser mayor al año actual ⚠️',
-      });
-
     const vehiculo = await Vehiculo.create(body);
 
-    delete vehiculo.__v
+    delete vehiculo.__v;
 
     return res
       .status(201)
@@ -86,34 +56,21 @@ export const updateVehiculoById = async ({ params: { id }, body }, res) => {
     if (!vehiculoExistente)
       return res.status(404).json({ response: 'Vehículo no encontrado ⚠️' });
 
-    const { placa, anio_fabricacion } = body;
+    const { placa } = body;
 
-    if (placa && placa !== vehiculoExistente.placa) {
+    if (placa !== vehiculoExistente.placa) {
       const placaExistente = await Vehiculo.exists({ placa });
 
-      if (placaExistente) {
+      if (placaExistente)
         return res.status(400).json({
           response: 'La placa ya se encuentra registrada ⚠️',
         });
-      }
-    }
-
-    const anioActual = new Date().getFullYear();
-
-    if (
-      anio_fabricacion &&
-      anio_fabricacion !== vehiculoExistente.anio_fabricacion &&
-      anio_fabricacion > anioActual
-    ) {
-      return res.status(400).json({
-        response: 'El año de fabricación no puede ser mayor al año actual ⚠️',
-      });
     }
 
     const vehiculo = await Vehiculo.findByIdAndUpdate(id, body, {
       new: true,
     }).select('-__v');
-    
+
     return res
       .status(200)
       .json({ response: 'Vehículo actualizado con éxito ✅', vehiculo });
@@ -124,12 +81,10 @@ export const updateVehiculoById = async ({ params: { id }, body }, res) => {
 
 export const deleteVehiculoById = async ({ params: { id } }, res) => {
   try {
-    const vehiculo = await Vehiculo.findById(id);
+    const vehiculo = await Vehiculo.findByIdAndDelete(id);
 
     if (!vehiculo)
       return res.status(404).json({ response: 'Vehículo no encontrado ⚠️' });
-
-    await vehiculo.remove();
 
     return res
       .status(200)

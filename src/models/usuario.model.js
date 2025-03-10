@@ -25,7 +25,7 @@ const UsuarioSchema = new Schema({
   },
 });
 
-UsuarioSchema.methods.encryptPassword = async (password) => {
+UsuarioSchema.methods.encryptPassword = async password => {
   return await hash(password, await genSalt(10));
 };
 

@@ -3,31 +3,14 @@ import { Usuario } from '../models/usuario.model.js';
 
 export const userRegister = async ({ body }, res) => {
   try {
-    const { nombre, apellido, email, password } = body;
-
-    if (!nombre || !apellido || !email || !password) {
-      return res
-        .status(400)
-        .json({ response: 'Por favor, rellene todos los campos ⚠️' });
-    }
+    const { email, password } = body;
 
     const usuarioExistente = await Usuario.exists({ email });
 
-    if (usuarioExistente) {
+    if (usuarioExistente)
       return res.status(400).json({
-        response: 'El correo electrónico ya se encuentra registrado ⚠️',
+        response: 'El correo electrónico ya se encuentra registrado ⛔',
       });
-    }
-
-    const regexPassword =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&\.]{8,}$/;
-
-    if (!regexPassword.test(password)) {
-      return res.status(400).json({
-        response:
-          'La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial ⚠️',
-      });
-    }
 
     const usuario = new Usuario(body);
     usuario.password = await usuario.encryptPassword(password);
@@ -46,27 +29,19 @@ export const userLogin = async ({ body }, res) => {
   try {
     const { email, password } = body;
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ response: 'Por favor, rellene todos los campos ⚠️' });
-    }
-
     const usuario = await Usuario.findOne({ email });
 
-    if (!usuario) {
+    if (!usuario)
       return res.status(404).json({
-        response: 'El correo electrónico no se encuentra registrado ⚠️',
+        response: 'El correo electrónico no se encuentra registrado ⛔',
       });
-    }
 
     const matchPassword = await usuario.matchPassword(password);
 
-    if (!matchPassword) {
+    if (!matchPassword)
       return res
         .status(401)
         .json({ response: 'La contraseña es incorrecta ⛔' });
-    }
 
     const token = generateToken(usuario._id);
     return res

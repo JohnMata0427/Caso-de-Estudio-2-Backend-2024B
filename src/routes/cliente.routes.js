@@ -6,15 +6,16 @@ import {
   updateClientById,
   deleteClientById,
 } from '../controllers/cliente.controller.js';
+import { clienteValidator } from '../validators/cliente.validator.js';
 
 const clienteRouter = Router();
 
-clienteRouter.route('/clientes').get(getAllClients).post(createClient);
+clienteRouter.route('/clientes').get(getAllClients).post(clienteValidator, createClient);
 
 clienteRouter
-  .route('/clientes/:id')
+  .route('/cliente/:id')
   .get(getClientById)
-  .put(updateClientById)
+  .put(clienteValidator, updateClientById)
   .delete(deleteClientById);
 
 export { clienteRouter };

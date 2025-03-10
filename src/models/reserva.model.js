@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 
 const ReservaSchema = new Schema({
   codigo: {
@@ -13,12 +13,12 @@ const ReservaSchema = new Schema({
     trim: true,
   },
   id_cliente: {
-    type: Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'Cliente',
     required: true,
   },
   id_vehiculo: {
-    type: Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'Vehiculo',
     required: true,
   },

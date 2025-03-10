@@ -3,47 +3,28 @@ import { Reserva } from '../models/reserva.model.js';
 
 export const createClient = async ({ body }, res) => {
   try {
-    const {
-      cedula,
-      nombre,
-      apellido,
-      ciudad,
-      email,
-      direccion,
-      telefono,
-      fecha_nacimiento,
-    } = body;
-
-    if (
-      !cedula ||
-      !nombre ||
-      !apellido ||
-      !ciudad ||
-      !email ||
-      !direccion ||
-      !telefono ||
-      !fecha_nacimiento
-    ) {
-      return res
-        .status(400)
-        .json({ response: 'Por favor, rellene todos los campos ⚠️' });
-    }
+    const { cedula, email, telefono } = body;
 
     const cedulaExistente = await Cliente.exists({ cedula });
 
-    if (cedulaExistente) {
+    if (cedulaExistente)
       return res.status(400).json({
         response: 'La cédula ya se encuentra registrada ⚠️',
       });
-    }
 
     const emailExistente = await Cliente.exists({ email });
 
-    if (emailExistente) {
+    if (emailExistente)
       return res.status(400).json({
         response: 'El correo electrónico ya se encuentra registrado ⚠️',
       });
-    }
+
+    const telefonoExistente = await Cliente.exists({ telefono });
+
+    if (telefonoExistente)
+      return res.status(400).json({
+        response: 'El número de teléfono ya se encuentra registrado ⚠️',
+      });
 
     const cliente = await Cliente.create(body);
 
@@ -71,9 +52,8 @@ export const getClientById = async ({ params: { id } }, res) => {
   try {
     const cliente = await Cliente.findById(id).select('-__v');
 
-    if (!cliente) {
+    if (!cliente)
       return res.status(404).json({ response: 'Cliente no encontrado ⚠️' });
-    }
 
     const reservas = await Reserva.find({ id_cliente: id }).select('-__v');
 
@@ -87,31 +67,38 @@ export const updateClientById = async ({ params: { id }, body }, res) => {
   try {
     const clienteExistente = await Cliente.findById(id);
 
-    if (!clienteExistente) {
+    if (!clienteExistente)
       return res.status(404).json({ response: 'Cliente no encontrado ⚠️' });
-    }
 
-    const { cedula, email } = body;
+    const { cedula, email, telefono } = body;
 
-    if (cedula && cedula !== clienteExistente.cedula) {
+    if (cedula !== clienteExistente.cedula) {
       const cedulaExistente = await Cliente.exists({ cedula });
-      if (cedulaExistente) {
+      if (cedulaExistente)
         return res.status(400).json({
           response: 'La cédula ya se encuentra registrada ⚠️',
         });
-      }
     }
 
-    if (email && email !== clienteExistente.email) {
+    if (email !== clienteExistente.email) {
       const emailExistente = await Cliente.exists({ email });
-      if (emailExistente) {
+      if (emailExistente)
         return res.status(400).json({
           response: 'El correo electrónico ya se encuentra registrado ⚠️',
         });
-      }
     }
 
-    const cliente = await Cliente.findByIdAndUpdate(id, body, { new: true }).select('-__v');
+    if (telefono !== clienteExistente.telefono) {
+      const telefonoExistente = await Cliente.exists({ telefono });
+      if (telefonoExistente)
+        return res.status(400).json({
+          response: 'El número de teléfono ya se encuentra registrado ⚠️',
+        });
+    }
+
+    const cliente = await Cliente.findByIdAndUpdate(id, body, {
+      new: true,
+    }).select('-__v');
 
     return res
       .status(200)
@@ -123,13 +110,9 @@ export const updateClientById = async ({ params: { id }, body }, res) => {
 
 export const deleteClientById = async ({ params: { id } }, res) => {
   try {
-    const cliente = await Cliente.findById(id);
+    const cliente = await Cliente.findByIdAndDelete(id);
 
-    if (!cliente) {
-      return res.status(404).json({ response: 'Cliente no encontrado ⚠️' });
-    }
-
-    await cliente.remove();
+    if (!cliente) return res.status(404).json({ response: 'Cliente no encontrado ⚠️' });
 
     return res.status(200).json({ response: 'Cliente eliminado con éxito ✅' });
   } catch (error) {

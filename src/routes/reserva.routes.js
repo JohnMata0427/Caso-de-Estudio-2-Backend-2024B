@@ -6,15 +6,16 @@ import {
   updateReservaById,
   deleteReservaById,
 } from '../controllers/reserva.controller.js';
+import { reservaValidator } from '../validators/reserva.validator.js';
 
 const reservaRouter = Router();
 
-reservaRouter.route('/reservas').get(getAllReservas).post(createReserva);
+reservaRouter.route('/reservas').get(getAllReservas).post(reservaValidator, createReserva);
 
 reservaRouter
-  .route('/reservas/:id')
+  .route('/reserva/:id')
   .get(getReservaById)
-  .put(updateReservaById)
+  .put(reservaValidator, updateReservaById)
   .delete(deleteReservaById);
 
 export { reservaRouter };

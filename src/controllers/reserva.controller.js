@@ -117,7 +117,9 @@ export const updateReservaById = async ({ params: { id }, body }, res) => {
       }
     }
 
-    const reserva = await Reserva.findByIdAndUpdate(id, body, { new: true }).select('-__v');
+    const reserva = await Reserva.findByIdAndUpdate(id, body, {
+      new: true,
+    }).select('-__v');
 
     return res
       .status(200)
@@ -129,13 +131,9 @@ export const updateReservaById = async ({ params: { id }, body }, res) => {
 
 export const deleteReservaById = async ({ params: { id } }, res) => {
   try {
-    const reserva = await Reserva.findById(id);
+    const reserva = await Reserva.findByIdAndDelete(id);
 
-    if (!reserva) {
-      return res.status(404).json({ response: 'Reserva no encontrada ⚠️' });
-    }
-
-    await Reserva.findByIdAndDelete(id);
+    if (!reserva) return res.status(404).json({ response: 'Reserva no encontrada ⚠️' });
 
     return res.status(200).json({ response: 'Reserva eliminada con éxito ✅' });
   } catch (error) {
