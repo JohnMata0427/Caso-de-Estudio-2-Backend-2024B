@@ -26,11 +26,11 @@ export const clienteValidator = [
   body(['nombre', 'apellido'])
     .isLength({ min: 3, max: 20 })
     .withMessage(
-      'El nombre y/o apellido del cliente debe tener entre 3 y 20 caracteres ⚠️',
+      'El nombre y/o apellido del cliente debe tener entre 3 y 20 caracteres ⚠️'
     )
     .isAlpha('es-ES', { ignore: 'áéíóúñÁÉÍÓÚÑ' })
     .withMessage(
-      'El nombre y/o apellido del cliente solo puede contener letras ⚠️',
+      'El nombre y/o apellido del cliente solo puede contener letras ⚠️'
     ),
 
   body('ciudad')
@@ -45,48 +45,28 @@ export const clienteValidator = [
     .toLowerCase(),
 
   body('direccion')
-    .isLength({ min: 3, max: 100 })
+    .matches(/^[a-zA-Z0-9\s,.'-]{3,100}$/)
     .withMessage(
-      'La dirección del cliente debe tener entre 3 y 100 caracteres ⚠️',
-    )
-    .matches(/^[a-zA-Z0-9\s,.'-]{3,}$/)
-    .withMessage(
-      "La dirección del cliente solo puede contener letras, números y los caracteres , . ' - ⚠️",
+      'La dirección del cliente debe tener entre 3 y 100 caracteres ⚠️'
     ),
 
   body('telefono')
     .isMobilePhone('es-EC', { strictMode: true })
     .withMessage(
-      'El número de teléfono del cliente no es válido de Ecuador 🇪🇨 ⚠️',
-    )
-    .contains('+593')
-    .withMessage(
-      'El número de teléfono del cliente debe tener el prefijo de Ecuador 🇪🇨 (+593) ⚠️',
+      'El número de teléfono del cliente no es válido de Ecuador 🇪🇨 ⚠️'
     ),
 
   body('fecha_nacimiento')
     .isDate({ format: 'YYYY-MM-DD' })
     .withMessage('La fecha de nacimiento del cliente no es válida ⚠️')
-    .isBefore(new Date().toISOString().split('T')[0])
-    .withMessage(
-      'La fecha de nacimiento del cliente no puede ser mayor a la fecha actual ⚠️',
-    )
     .custom(value => {
-      const fecha = new Date(value);
-      const fechaActual = new Date();
-      const fechaMinima = new Date(
-        fechaActual.getFullYear() - 90,
-        fechaActual.getMonth(),
-        fechaActual.getDate(),
-      );
-      const fechaMaxima = new Date(
-        fechaActual.getFullYear() - 18,
-        fechaActual.getMonth(),
-        fechaActual.getDate(),
-      );
-      if (fecha < fechaMinima || fecha > fechaMaxima)
+      const anioNacimiento = new Date(value).getFullYear();
+      const anioActual = new Date().getFullYear();
+      const edad = anioActual - anioNacimiento;
+      
+      if (edad < 18 || edad > 90)
         throw new Error(
-          'La fecha de nacimiento del cliente debe ser mayor a 18 años y menor a 90 años ⚠️',
+          'La fecha de nacimiento del cliente debe ser mayor a 18 años y menor a 90 años ⚠️'
         );
       return true;
     }),

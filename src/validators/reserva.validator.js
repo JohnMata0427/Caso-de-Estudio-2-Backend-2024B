@@ -15,10 +15,8 @@ export const reservaValidator = [
     ),
 
   body('descripcion')
-    .isLength({ min: 10, max: 100 })
-    .withMessage(
-      'La descripción de la reserva debe tener entre 10 y 100 caracteres ⚠️',
-    )
+    .isLength({ max: 200 })
+    .withMessage('La descripción de la reserva debe tener máximo 200 caracteres ⚠️')
     .matches(/^(.*[a-zA-Z]){8,}$/)
     .withMessage(
       'La descripción de la reserva debe tener al menos 8 caracteres de letras ⚠️',
